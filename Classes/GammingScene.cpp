@@ -32,6 +32,7 @@ bool Gamming::init()
     }
     this->initYanyus();
     this->initInterface();
+    this->makeAWords();
     this->schedule(schedule_selector(Gamming::timeTicker), 1);
     return true;
 }
@@ -198,28 +199,30 @@ void Gamming::createGameMenu() {
 void Gamming::makeAWords() {
     int count = 14;
     float scale = 1.0f;
-    
+    lblWords = CCArray::create();
+
     for (int i = (lblWords->count() - 1); i >= 0; i--) {
         CCLabelTTF *obj = (CCLabelTTF *)lblWords->objectAtIndex(i);
         this->removeChild(obj, 1);
     }
-    
     int all = Yanyus->count() - 1;
     int p = arc4random()%all;
     currentWords = (CCString *)Yanyus->objectAtIndex(p);
     wordPosition = 0;
     
     for (int i = 0; i < currentWords->length(); i++) {
-        CCLabelTTF *lbl = CCLabelTTF::create("x", "Arial", 30);
+        const char *words = currentWords->getCString();
+        CCLOG("-----------------3--------------");
+        char word[1];
+        CCLOG("-----------------3.5--------------");
+        word[0] = words[i];
+        CCLOG("-----------------4--------------");
+        CCLabelTTF *lbl = CCLabelTTF::create(word, "Arial", 40);
         this->addChild(lbl, 10, 0);
         float x = 20*scale + (i%count)*22.0f*scale + 60*(scale-1);
         float y = 400*scale - (i/count)*33.0f*scale;
-        lbl->setPosition:(ccp(x, y));
-        if (i == 0) {
-            lblWords = [[NSArray alloc] initWithObjects:lbl, nil];
-        } else {
-            lblWords = [[NSArray alloc] initWithArray:[lblWords arrayByAddingObject:lbl] ];
-        }
+        lbl->setPosition(ccp(x, y));
+        lblWords->addObject(lbl);
     }
 }
 
