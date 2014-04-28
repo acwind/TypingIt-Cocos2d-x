@@ -81,7 +81,7 @@ bool TouchableSprite::ccTouchBegan(cocos2d::CCTouch *touch, cocos2d::CCEvent *ev
     
     if (containsTouchLocation(touch))
     {
-        CCLog("Touchable Sprite Began");
+        // CCLog("Touchable Sprite Began");
         
         bRet = true;
     }
@@ -91,11 +91,15 @@ bool TouchableSprite::ccTouchBegan(cocos2d::CCTouch *touch, cocos2d::CCEvent *ev
 
 void TouchableSprite::ccTouchMoved(cocos2d::CCTouch *touch, cocos2d::CCEvent *event)
 {
-    CCLog("Touchable Sprite Moved");
 }
 
 void TouchableSprite::ccTouchEnded(cocos2d::CCTouch *touch, cocos2d::CCEvent *event)
 {
     CCLog("Touchable Sprite Ended");
+    if (delegate_)
+    {
+       delegate_->spriteClicked(this->tagId);
+    }
+    
 }
 

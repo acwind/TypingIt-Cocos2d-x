@@ -30,15 +30,19 @@ bool Gamming::init()
     {
         return false;
     }
+    this->setTouchEnabled(true);
     this->initYanyus();
     this->initInterface();
     this->makeAWords();
+
+    struct cocos2d::cc_timeval now;
+    startTime = CCTime::gettimeofdayCocos2d(&now, NULL);
+    
     this->schedule(schedule_selector(Gamming::timeTicker), 1);
     return true;
 }
 
 void Gamming::initInterface() {
-
     CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
     CCPoint origin = CCDirector::sharedDirector()->getVisibleOrigin();
 
@@ -62,13 +66,13 @@ void Gamming::initInterface() {
 
     spLife = CCSprite::create("life.png");
     spLife->setAnchorPoint(ccp(0.5, 0.5));
-    spLife->setPosition(ccp(LIFE_BAR_POSITION*scale, visibleSize.height - (10*scale) - 10 - 65));
+    spLife->setPosition(ccp(LIFE_BAR_POSITION, visibleSize.height - (10*scale) - 10 - 65));
     this->addChild(spLife, 10, 0);
 
     spFishWait = CCSprite::create("fishwait.png");
     spFishWait->setAnchorPoint(ccp(0.5, 0.5));
     spFishWait->setPosition(ccp(visibleSize.width/2, visibleSize.height/2));
-    spFishWait->setVisible(false);
+    // spFishWait->setVisible(false);
     this->addChild(spFishWait, 10, 0);
 
     spFishRight = CCSprite::create("fishright.png");
@@ -86,12 +90,14 @@ void Gamming::initInterface() {
 
     spHurryup = CCSprite::create("hurry.png");
     spHurryup->setAnchorPoint(ccp(0.5, 0.5));
-    spHurryup->setPosition(ccp(50 + 80*(scale-1), 250*scale));
+    spHurryup->setPosition(ccp(50 + 80*(scale-1), visibleSize.height/2));
     spHurryup->setVisible(false);
     this->addChild(spHurryup, 10, 0);
 
     keyboards = CCArray::create();
+    keyboards->retain();
     lbls = CCArray::create();
+    lbls->retain();
 
     int i = 65;
     int j = 0;
@@ -116,13 +122,20 @@ void Gamming::initInterface() {
 
 
     TouchableSprite *button = TouchableSprite::touchSpriteWithFile("buttonspace.png");
-    this->addChild(button, 10, 32);   
+    button->delegate_ = this;
+    this->addChild(button, 10, 32);
+    button->tagId = 32;   
     button->setPosition(ccp(48.0f*5,  50.0f + HEIGHT_FIX));
     
     CCLabelTTF *lbl = CCLabelTTF::create("空格", "Thonburi-Bold", 22);
     this->addChild(lbl, 10, 0);
     lbl->setPosition(ccp(48.0f*5,  50.0f + HEIGHT_FIX));
     lbls->addObject(lbl);
+
+    rightCount  = 0;
+    falseCount  = 0;
+    lifes       = MAX_LIFE;
+    typeSpeed   = 0;
 
     spRight = CCSprite::create("right.png");
     spFalse = CCSprite::create("false.png");
@@ -162,6 +175,8 @@ void Gamming::addButton(int tagId, float x, float y, int index) {
     y = y*scale + HEIGHT_FIX + 15*(scale-1);
     TouchableSprite *button;
     button = TouchableSprite::touchSpriteWithFile("button1.png");
+    button->delegate_ = this;
+    button->tagId = tagId;
     this->addChild(button, 9, tagId);
     button->setPosition(ccp(x, y));
     keyboards->addObject(button);
@@ -197,7 +212,7 @@ void Gamming::createGameMenu() {
 }
 
 void Gamming::makeAWords() {
-    int count = 14;
+    int count = 18;
     float scale = 1.0f;
     lblWords = CCArray::create();
 
@@ -206,39 +221,259 @@ void Gamming::makeAWords() {
         this->removeChild(obj, 1);
     }
     int all = Yanyus->count() - 1;
-    int p = arc4random()%all;
+    p = arc4random()%all;
     currentWords = (CCString *)Yanyus->objectAtIndex(p);
+    currentWords->retain();
     wordPosition = 0;
     
     for (int i = 0; i < currentWords->length(); i++) {
         const char *words = currentWords->getCString();
-        CCLOG("-----------------3--------------");
         char word[1];
-        CCLOG("-----------------3.5--------------");
         word[0] = words[i];
-        CCLOG("-----------------4--------------");
-        CCLabelTTF *lbl = CCLabelTTF::create(word, "Arial", 40);
+        CCLabelTTF *lbl = CCLabelTTF::create(word, "Arial", 35);
         this->addChild(lbl, 10, 0);
-        float x = 20*scale + (i%count)*22.0f*scale + 60*(scale-1);
-        float y = 400*scale - (i/count)*33.0f*scale;
+        float x = 15 + (i%count)*26.0f;
+        float y = 550 - (i/count)*38.0f;
         lbl->setPosition(ccp(x, y));
         lblWords->addObject(lbl);
     }
+    lblWords->retain();
+}
+
+void Gamming::reduceLife() {
+    lifes--;
+    CCLOG("life left: %d", lifes);
+    if (lifes <= 10) {
+        spHurryup->setVisible(true);
+    } else {
+        spHurryup->setVisible(false);
+    }
+    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(20*(MAX_LIFE-lifes)), spLife->getPositionY()));
+    spLife->runAction(CCSequence::create(s1, NULL));
+    
+    if (lifes <= 0) {
+        this->gameOver();
+    }
+
+
 }
 
 void Gamming::timeTicker(float dt) {
+    if (isGamePause) {
+        return;
+    }
+    
+    this->reduceLife();
+    
+    if (rightCount <= 0) {
+        lblSpeed->setString("0/分钟");
+    } else {
+        struct cocos2d::cc_timeval now;
+        int nowTime = CCTime::gettimeofdayCocos2d(&now, NULL);
+        int interval = nowTime - startTime;
+        if (interval == 0) {
+            interval = 1;
+        }
+        
+        interval = abs(interval);
+        typeSpeed = rightCount*60/interval;
+
+        lblSpeed->setString(CCString::createWithFormat("%d/分", typeSpeed)->getCString());
+    }
+
+        
+    // [spFishWait runAction:[CCSequence actions:
+    //                        [CCScaleBy actionWithDuration:0.4 scale:1.1],
+    //                        [CCScaleBy actionWithDuration:0.4 scale:1/1.1],
+    //                        nil]];
+    
+    // [spFishFalse runAction:[CCRotateBy actionWithDuration:1 angle:180]];
+    
+    // [spFishRight runAction:[CCSequence actions:
+    //                        [CCScaleBy actionWithDuration:0.4 scale:1.1],
+    //                        [CCScaleBy actionWithDuration:0.4 scale:1/1.1],
+    //                        nil]];
+    
+    // [spHurryup runAction:[CCSequence actions:
+    //                        [CCScaleBy actionWithDuration:0.4 scale:1.2],
+    //                        [CCScaleBy actionWithDuration:0.4 scale:1/1.2],
+    //                        nil]];
 
 }
 
+
+// void Gamming::ccTouchesBegan(CCSet *pTouches, CCEvent *pEvent)
+// {
+//     CCLog("ccTouchesBegan");
+// }
+
+// void Gamming::ccTouchMoved(cocos2d::CCTouch *touch, cocos2d::CCEvent *event)
+// {
+// }
+// void Gamming::ccTouchEnded(CCTouch *touch, CCEvent *event) {
+//     CCLOG("Touched CCLayer!!!!");
+// }
+void Gamming::spriteClicked(int tagId) {
+    if (wordPosition  == currentWords->length()) {
+        return;
+    }
+    char word1[1];
+    sprintf(word1, "%c", tagId);
+    CCString *clickWord = CCString::create(word1);
+
+    char word2[2];
+    const char *words = currentWords->getCString();
+    memcpy(word2, &words[wordPosition], 1);
+    word2[1] = '\0';
+    CCString *currentWord = CCString::create(word2);
+
+    CCLOG("1:%s", clickWord->getCString());
+    CCLOG("2:%s", currentWord->getCString());
+
+    if ( clickWord->isEqual(currentWord))
+    {
+        CCLog("YESSSSSSSSSSSSSSSSSSS");
+        // [self createExplosionX:sprite.position.x y:sprite.position.y];
+        // [sprite runAction:[CCSequence actions:
+        //                    [CCScaleBy actionWithDuration:0.1 scale:1.5],
+        //                    [CCScaleBy actionWithDuration:0.1 scale:1/1.5],
+        //                    nil]];
+    //     [((CCLabelTTF*)[lblWords objectAtIndex:wordPosition]) runAction:[CCSequence actions:
+    //                                                                      [CCScaleBy actionWithDuration:0.3 scale:2],
+    //                                                                      [CCScaleBy actionWithDuration:0.3 scale:1/2],
+    //                                                                      nil]];
+        CCLabelTTF *lblWord = (CCLabelTTF *)lblWords->objectAtIndex(wordPosition);
+        lblWord->setFontFillColor(ccRED);
+        wordPosition++;
+        this->changeKeyboardSet(26);
+        this->actionTypeRight();
+    } else {
+        CCLog("NOOOOOOOOOOOOOOOOOOOO");
+        this->actionTypeWrong();
+    }
+    
+    
+        
+    
+    //     
+    //     [self actionTypeRight];
+        
+    //     if (wordPosition == ([lblWords count])) {
+    //         [self makeAWords];
+    //     }
+    // } else {
+        
+    //     [sprite runAction:[CCSequence actions:
+    //                        [CCFadeOut actionWithDuration:0.1],
+    //                        [CCFadeIn  actionWithDuration:0.1],
+    //                        [CCFadeOut actionWithDuration:0.1],
+    //                        [CCFadeIn  actionWithDuration:0.1],
+    //                        nil]];
+    //     [self actionTypeWrong];
+    // }
+    // CCLOG("SUCCESS!!!!!!!!!!!!!!!!!!!!!!%d", tagId);
+}
+
+void Gamming::changeKeyboardSet(int times) {
+    int count = lbls->count() - 1;
+    for (int i = 0; i < times; i++) {
+        int leftIndex  = 0;
+        int rightIndex = 0;
+        while (leftIndex == rightIndex) {
+            leftIndex  = arc4random()%count;
+            rightIndex = arc4random()%count;
+        }
+        TouchableSprite *sprite1 = (TouchableSprite *)keyboards->objectAtIndex(leftIndex);
+        TouchableSprite *sprite2 = (TouchableSprite *)keyboards->objectAtIndex(rightIndex);
+        int tag1 = sprite1->tagId;
+        sprite1->tagId = sprite2->tagId;
+        sprite2->tagId = tag1;
+        
+        CCLabelTTF *lbl1 = (CCLabelTTF *)lbls->objectAtIndex(leftIndex);
+        CCLabelTTF *lbl2 = (CCLabelTTF *)lbls->objectAtIndex(rightIndex);
+        tag1 = lbl1->getTag();
+        char letter[1];
+        sprintf(letter, "%c", lbl1->getTag());
+        char letter2 [1];
+        sprintf(letter2, "%c", lbl2->getTag());
+
+        lbl1->setTag(lbl2->getTag());
+        lbl1->setString(letter2);
+        lbl1->setFontFillColor(ccWHITE);
+        lbl2->setTag(tag1);
+        lbl1->setVisible(true);
+        lbl2->setString(letter);
+        lbl2->setFontFillColor(ccWHITE); 
+    }
+}
+
+
+void Gamming::actionTypeRight(){
+    rightCount++;
+    char word[6];
+    sprintf(word, "%d", rightCount);
+    lblRight->setString(word);
+    this->addLife(2);
+    this->hideFish();
+    spFishRight->setVisible(true);
+    
+}
+
+
+void Gamming::actionTypeWrong(){
+    falseCount++;
+    char word[6];
+    sprintf(word, "%d", falseCount);
+    lblFalse->setString(word); 
+    this->reduceLife(); 
+    
+    this->hideFish();
+    spFishFalse->setVisible(true);
+}
+
+void Gamming::addLife(int life) {
+    lifes += life;
+    if (lifes > MAX_LIFE) {
+        lifes = MAX_LIFE;
+    }
+    
+    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(20*(MAX_LIFE-lifes)), spLife->getPositionY()));
+    spLife->runAction(CCSequence::create(s1, NULL));
+}
+
+
+
+void Gamming::hideFish() {
+    spFishWait->setVisible(false);
+    spFishRight->setVisible(false);
+    spFishFalse->setVisible(false);
+}
+
+void Gamming::registerWithTouchDispatcher(void) {
+    CCDirector::sharedDirector()->getTouchDispatcher()->addStandardDelegate(this, 0);
+    // CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, kCCMenuHandlerPriority, true);
+}
 void Gamming::gameResume(CCObject* pSender) {
 
 }
+
 void Gamming::gameRestart(CCObject* pSender) {
 
 }
+
 void Gamming::gameExit(CCObject* pSender) {
 
 }
+
+void Gamming::gameOver() {
+    spGameOverBack->setVisible(true);
+    spGameOver->setVisible(true);
+    spPause->setVisible(false);
+    spLife->setVisible(false);
+    
+    menuGameOver->setVisible(true);
+}
+
 
 void Gamming::initYanyus() {
     Yanyus = CCArray::create();

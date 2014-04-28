@@ -10,6 +10,7 @@
 #define TouchDemo_TouchableSprite_h
 
 #include "cocos2d.h"
+#include "VirtualClassC.h"
 
 USING_NS_CC;
 
@@ -34,6 +35,9 @@ public:
     virtual bool ccTouchBegan(CCTouch *touch, CCEvent *event);
     virtual void ccTouchMoved(CCTouch *touch, CCEvent *event);
     virtual void ccTouchEnded(CCTouch *touch, CCEvent *event);
+
+    VirtualClassC *delegate_; 
+    int tagId;
 
 };
 
