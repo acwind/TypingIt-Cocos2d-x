@@ -63,6 +63,7 @@ void Gamming::initInterface() {
     spPause->setAnchorPoint(ccp(1, 1));
     spPause->setPosition(ccp(visibleSize.width-5, visibleSize.height-5-65));
     this->addChild(spPause, 2, GAME_PAUSE);
+    spPause->setVisible(false);
 
     spLife = CCSprite::create("life.png");
     spLife->setAnchorPoint(ccp(0.5, 0.5));
@@ -204,8 +205,9 @@ void Gamming::createGameMenu() {
     this->addChild(menuGameOver, 30, 2);
     menuGameOver->setVisible(false);
 
+    CCSize visibleSize = CCDirector::sharedDirector()->getVisibleSize();
     spGameOver = CCSprite::create("gameover.png");
-    spGameOver->setPosition(ccp(160, 350));
+    spGameOver->setPosition(ccp(visibleSize.width/2, 550));
     this->addChild(spGameOver, 30, 0);
     spGameOver->setVisible(false);
 
@@ -458,11 +460,14 @@ void Gamming::gameResume(CCObject* pSender) {
 }
 
 void Gamming::gameRestart(CCObject* pSender) {
-
+    spLife->setVisible(false);
+    CCScene *sc = Gamming::scene();
+    CCDirector::sharedDirector()->replaceScene(CCTransitionFlipX::create(1.2f, sc, kCCTransitionOrientationLeftOver));
 }
 
 void Gamming::gameExit(CCObject* pSender) {
-
+    CCScene *sc = HelloWorld::scene();
+    CCDirector::sharedDirector()->replaceScene(CCTransitionFlipX::create(1.2f, sc, kCCTransitionOrientationLeftOver));
 }
 
 void Gamming::gameOver() {

@@ -124,7 +124,7 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
 
 void HelloWorld::menuStartGame(CCObject* pSender) {
     CCScene *sc = Gamming::scene();
-    CCDirector::sharedDirector()->replaceScene(sc);
+    CCDirector::sharedDirector()->replaceScene(CCTransitionFlipX::create(1.2f, sc, kCCTransitionOrientationLeftOver));
     // [sc addChild:[Gamming node]];
     // [[CCDirector sharedDirector] replaceScene:[CCTransitionFlipX transitionWithDuration:1.2f scene:sc]];
 }
