@@ -34,6 +34,7 @@ public:
     cocos2d::CCLabelTTF *lblFalse;
     cocos2d::CCSprite *spSpeed;
     cocos2d::CCLabelTTF *lblSpeed;
+    cocos2d::CCLabelTTF *lblScore;
     
     TouchableSprite *spPause;
     cocos2d::CCSprite *spLife;

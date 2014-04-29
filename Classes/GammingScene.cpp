@@ -161,6 +161,13 @@ void Gamming::initInterface() {
     this->addChild(lblSpeed, 10, 0);
     lblSpeed->setPosition(ccp(280, 253));
 
+    lblScore = CCLabelTTF::create("本次游戏得分：", "Arial", 30);
+    this->addChild(lblScore, 30, 0);
+    lblScore->setAnchorPoint(ccp(0.5, 0.5));
+    lblScore->setPosition(ccp(visibleSize.width/2, visibleSize.height/2 + 80));
+    lblScore->setVisible(false);
+    lblScore->setFontFillColor(ccRED);
+
     this->createGameMenu();
     
     isGamePause = false;
@@ -471,12 +478,15 @@ void Gamming::gameExit(CCObject* pSender) {
 }
 
 void Gamming::gameOver() {
-    spGameOverBack->setVisible(true);
-    spGameOver->setVisible(true);
     spPause->setVisible(false);
     spLife->setVisible(false);
-    
+
+    spGameOverBack->setVisible(true);
+    spGameOver->setVisible(true);
+    lblScore->setVisible(true);
     menuGameOver->setVisible(true);
+
+    lblScore->setString(CCString::createWithFormat("本次游戏得分：%d", rightCount)->getCString());
 }
 
 
