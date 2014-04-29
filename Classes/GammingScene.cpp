@@ -149,17 +149,17 @@ void Gamming::initInterface() {
     spRight->setPosition(ccp(20, 253));
     lblRight = CCLabelTTF::create("0", "Arial", 22);
     this->addChild(lblRight, 10, 0);
-    lblRight->setPosition(ccp(53, 253));
+    lblRight->setPosition(ccp(63, 253));
 
     spFalse->setPosition(ccp(100, 253));
     lblFalse = CCLabelTTF::create("0", "Arial", 22);
     this->addChild(lblFalse, 10, 0);
-    lblFalse->setPosition(ccp(130, 253));
+    lblFalse->setPosition(ccp(140, 253));
 
     spSpeed->setPosition(ccp(240, 253));
     lblSpeed = CCLabelTTF::create("0", "Arial", 22);
     this->addChild(lblSpeed, 10, 0);
-    lblSpeed->setPosition(ccp(280, 253));
+    lblSpeed->setPosition(ccp(320, 253));
 
     lblScore = CCLabelTTF::create("本次游戏得分：", "Arial", 30);
     this->addChild(lblScore, 30, 0);
@@ -339,9 +339,7 @@ void Gamming::spriteClicked(int tagId) {
     CCLOG("1:%s", clickWord->getCString());
     CCLOG("2:%s", currentWord->getCString());
 
-    if ( clickWord->isEqual(currentWord))
-    {
-        CCLog("YESSSSSSSSSSSSSSSSSSS");
+    if ( clickWord->isEqual(currentWord)) {
         // [self createExplosionX:sprite.position.x y:sprite.position.y];
         // [sprite runAction:[CCSequence actions:
         //                    [CCScaleBy actionWithDuration:0.1 scale:1.5],
@@ -352,6 +350,7 @@ void Gamming::spriteClicked(int tagId) {
     //                                                                      [CCScaleBy actionWithDuration:0.3 scale:1/2],
     //                                                                      nil]];
         CCLabelTTF *lblWord = (CCLabelTTF *)lblWords->objectAtIndex(wordPosition);
+        lblWord->runAction(CCSequence::createWithTwoActions(CCScaleBy::create(0.3, 4), CCScaleBy::create(0.3, 1/4)));
         lblWord->setFontFillColor(ccRED);
         wordPosition++;
         this->changeKeyboardSet(26);
