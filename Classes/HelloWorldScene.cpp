@@ -1,6 +1,9 @@
 #include "HelloWorldScene.h"
 #include "GammingScene.h"
-
+#include "YoumiAd.h"
+#include <jni.h>  
+#include "platform/android/jni/JniHelper.h"  
+#include <android/log.h>  
 USING_NS_CC;
 
 
@@ -84,7 +87,7 @@ bool HelloWorld::init()
     
     
     spTitle = CCSprite::create("title.png");
-    spTitle->setPosition(ccp(visibleSize.width/2, visibleSize.height/2 + 300));
+    spTitle->setPosition(ccp(visibleSize.width/2, visibleSize.height/2 + 200));
     this->addChild(spTitle, 0); 
 
     CCSprite *spBox;
@@ -95,17 +98,26 @@ bool HelloWorld::init()
     CCMenuItemFont *menuNewGame;
     CCMenuItemFont *menuOption;
     CCMenuItemFont *menuHelp;
-
+    CCMenuItemFont::setFontSize(45);
     menuNewGame = CCMenuItemFont::create("开始游戏", this, menu_selector(HelloWorld::menuStartGame));
-    menuOption = CCMenuItemFont::create("游戏帮助", this, menu_selector(HelloWorld::menuStartGame));
-    menuHelp = CCMenuItemFont::create("达人排行", this, menu_selector(HelloWorld::menuStartGame));
-    CCMenu *menu = CCMenu::create(menuNewGame, menuOption, menuHelp, NULL);
+    // menuOption = CCMenuItemFont::create("游戏帮助", this, menu_selector(HelloWorld::menuStartGame));
+    menuHelp = CCMenuItemFont::create("达人排行", this, menu_selector(HelloWorld::menuLeadBorad));
+    CCMenu *menu = CCMenu::create(menuNewGame, menuHelp, NULL);
     menu->alignItemsVerticallyWithPadding(15);
 
     this->addChild(menu, 0);
 
+    CCLabelTTF *lblHelper = CCLabelTTF::create("游戏规则：以最快速度打出屏幕上的英文格言\n每打一次键位会重置。挑战你的眼力和脑力！", "Thonburi-Bold", 22);
+    lblHelper->setAnchorPoint(ccp(0.5, 0.5));
+    this->addChild(lblHelper, 10, 0);
+    lblHelper->setPosition(ccp(visibleSize.width/2,  70));
 
+    YoumiAd::showBanner();
     this->schedule(schedule_selector(HelloWorld::timeTicker), 1);
+
+    if (userDefault->getStringForKey("uid") == "") {
+        userDefault->setStringForKey("uid", this->getUUID());
+    }
     return true;
 }
 
@@ -129,6 +141,22 @@ void HelloWorld::menuStartGame(CCObject* pSender) {
     // [[CCDirector sharedDirector] replaceScene:[CCTransitionFlipX transitionWithDuration:1.2f scene:sc]];
 }
 
+
+void HelloWorld::menuLeadBorad(CCObject* pSender) {
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
+    JniMethodInfo minfo;
+    bool isHave = JniHelper::getStaticMethodInfo(minfo,"typing/acwind/net/typing","getInstance","()Ltyping/acwind/net/typing;");
+    jobject jobj;
+    if (isHave) {
+        jobj = minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID);
+        isHave = JniHelper::getMethodInfo(minfo,"typing/acwind/net/typing","openWebview","()V");
+        if (isHave) {
+            minfo.env->CallVoidMethod(jobj, minfo.methodID);
+        }
+    }
+#endif
+}
+
 void HelloWorld::timeTicker(float dt) {
     CCScaleBy *s1 = CCScaleBy::create(0.5f, 1.1f);
     CCScaleBy *s2 = CCScaleBy::create(0.5f, 1/1.1f);
@@ -136,3 +164,27 @@ void HelloWorld::timeTicker(float dt) {
     spTitle->runAction(CCSequence::createWithTwoActions(s1, s2));
     // spBox->runAction(CCSequence::create(r, NULL));
 }
+
+char const* HelloWorld::getUUID()  
+{  
+    std::string str;  
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID) //判断当前是否为Android平台  
+    JniMethodInfo minfo;//定义Jni函数信息结构体  
+      
+    bool isHave = JniHelper::getStaticMethodInfo(minfo,  
+        "typing/acwind/net/typing", //类的路径。最后一个hello是java文件名，但是不需要加入文件名后缀  
+        "getUUID", //方法名  
+        "()Ljava/lang/String;"); //括号里的是参数，后面的是返回值。  
+    jstring jstr;  
+ if (isHave) {  
+        //CallStaticObjectMethod是返回一个jobject格式的函数  
+        //还知道一个函数式CallStaticIntMethod  
+ jstr = (jstring)(minfo.env->CallStaticObjectMethod(minfo.classID, minfo.methodID));  
+        str = JniHelper::jstring2string(jstr);  
+        minfo.env->DeleteLocalRef(minfo.classID);  
+        minfo.env->DeleteLocalRef(jstr);  
+    }  
+    return str.c_str();  
+#endif  
+    return str.c_str();  
+} 

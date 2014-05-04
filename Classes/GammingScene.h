@@ -4,12 +4,15 @@
 #define MAX_LIFE    20
 #define LIFE_BAR_POSITION 200
 #define GAME_PAUSE 200
+#define userDefault CCUserDefault::sharedUserDefault()
+#define GAME_VER 1.0
 
 #include <list>
 #include <string>
 #include "cocos2d.h"
 #include "TouchableSprite.h"
 #include "VirtualClassC.h"
+#include "md5.h"
 
 using namespace std;
 
@@ -86,6 +89,9 @@ public:
     void addLife(int life);
     void reduceLife();
     void hideFish();
+
+    void submitScore(int score);
+    void onHttpRequestCompleted();
 
     virtual void spriteClicked(int tagId);
 };

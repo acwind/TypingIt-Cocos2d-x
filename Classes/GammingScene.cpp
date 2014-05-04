@@ -1,6 +1,6 @@
 #include "GammingScene.h"
 #include "HelloWorldScene.h"
-
+#include "cocos-ext.h"
 
 USING_NS_CC;
 
@@ -250,6 +250,9 @@ void Gamming::makeAWords() {
 }
 
 void Gamming::reduceLife() {
+    if (lifes <= 0) {
+        return;
+    }
     lifes--;
     CCLOG("life left: %d", lifes);
     if (lifes <= 10) {
@@ -260,20 +263,27 @@ void Gamming::reduceLife() {
     CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(20*(MAX_LIFE-lifes)), spLife->getPositionY()));
     spLife->runAction(CCSequence::create(s1, NULL));
     
-    if (lifes <= 0) {
-        this->gameOver();
-    }
+    
 
 
 }
 
 void Gamming::timeTicker(float dt) {
-    if (isGamePause) {
+    if (isGamePause)
+        return;
+
+    if (lifes <= 0) {
+        this->submitScore(rightCount);
+        this->gameOver();
         return;
     }
     
-    this->reduceLife();
-    
+    if (lifes > 0) {
+        this->reduceLife();
+    }
+
+
+
     if (rightCount <= 0) {
         lblSpeed->setString("0/分钟");
     } else {
@@ -477,6 +487,7 @@ void Gamming::gameExit(CCObject* pSender) {
 }
 
 void Gamming::gameOver() {
+    isGamePause = true;
     spPause->setVisible(false);
     spLife->setVisible(false);
 
@@ -486,6 +497,31 @@ void Gamming::gameOver() {
     menuGameOver->setVisible(true);
 
     lblScore->setString(CCString::createWithFormat("本次游戏得分：%d", rightCount)->getCString());
+
+}
+
+void Gamming::submitScore(int score) {
+    cocos2d::extension::CCHttpRequest* request = new cocos2d::extension::CCHttpRequest();
+    request->setUrl("http://game.acwind.net/index.php/typing/submitscore");
+    request->setRequestType(cocos2d::extension::CCHttpRequest::kHttpPost);
+    request->setResponseCallback(this, httpresponse_selector(Gamming::onHttpRequestCompleted));
+
+    // write the post data
+    char authString[200];
+    sprintf(authString, "%d%sfuckthief", rightCount, (userDefault->getStringForKey("uid")).c_str());
+    std::string strTmp(authString);
+    std::string auth = md5(strTmp);
+    char postData[200];// = "ver=1.0&auth=&uid=&score=";
+    sprintf(postData, "ver=1.0&auth=%s&uid=%s&score=%d", auth.c_str(), (userDefault->getStringForKey("uid")).c_str(), rightCount);
+    request->setRequestData(postData, strlen(postData));
+    CCLOG("%s", postData);
+    request->setTag("POST test1");
+    cocos2d::extension::CCHttpClient::getInstance()->send(request);
+    request->release();
+}
+
+void Gamming::onHttpRequestCompleted() {
+
 }
 
 
