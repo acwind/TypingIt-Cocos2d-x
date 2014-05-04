@@ -25,7 +25,6 @@ package typing.acwind.net;
 
 import java.util.UUID;
 
-import junit.framework.Test;
 
 import net.youmi.android.AdManager;
 import net.youmi.android.banner.AdSize;
@@ -33,10 +32,8 @@ import net.youmi.android.banner.AdView;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
-import com.tencent.stat.StatConfig;
 import com.tencent.stat.StatService;
 
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -197,8 +194,8 @@ public class typing extends Cocos2dxActivity{
                 m_topLayout = new LinearLayout(test);      
                 m_topLayout.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout.LayoutParams linearParams=
-                        new LinearLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                linearParams.width = 650;
+                        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                linearParams.width = 750;
                 linearParams.height = 600;
                 linearParams.gravity = Gravity.RIGHT;
                 m_topLayout.setLayoutParams(linearParams);

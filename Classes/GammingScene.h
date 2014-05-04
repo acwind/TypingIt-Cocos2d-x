@@ -1,7 +1,7 @@
 #ifndef __GAMMING_SCENE_H__
 #define __GAMMING_SCENE_H__
 #define HEIGHT_FIX  50
-#define MAX_LIFE    20
+#define MAX_LIFE    10
 #define LIFE_BAR_POSITION 200
 #define GAME_PAUSE 200
 #define userDefault CCUserDefault::sharedUserDefault()

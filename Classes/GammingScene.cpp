@@ -260,7 +260,7 @@ void Gamming::reduceLife() {
     } else {
         spHurryup->setVisible(false);
     }
-    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(20*(MAX_LIFE-lifes)), spLife->getPositionY()));
+    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(40*(MAX_LIFE-lifes)), spLife->getPositionY()));
     spLife->runAction(CCSequence::create(s1, NULL));
     
     
@@ -455,7 +455,7 @@ void Gamming::addLife(int life) {
         lifes = MAX_LIFE;
     }
     
-    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(20*(MAX_LIFE-lifes)), spLife->getPositionY()));
+    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(40*(MAX_LIFE-lifes)), spLife->getPositionY()));
     spLife->runAction(CCSequence::create(s1, NULL));
 }
 
@@ -501,6 +501,11 @@ void Gamming::gameOver() {
 }
 
 void Gamming::submitScore(int score) {
+    int highScore = userDefault->getIntegerForKey("high_score", 0);
+    if (rightCount <= highScore)
+        return;
+    userDefault->setIntegerForKey("high_score", rightCount);
+
     cocos2d::extension::CCHttpRequest* request = new cocos2d::extension::CCHttpRequest();
     request->setUrl("http://game.acwind.net/index.php/typing/submitscore");
     request->setRequestType(cocos2d::extension::CCHttpRequest::kHttpPost);
