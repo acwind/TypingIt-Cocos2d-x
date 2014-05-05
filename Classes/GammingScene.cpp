@@ -273,7 +273,6 @@ void Gamming::timeTicker(float dt) {
         return;
 
     if (lifes <= 0) {
-        this->submitScore(rightCount);
         this->gameOver();
         return;
     }
@@ -498,12 +497,16 @@ void Gamming::gameOver() {
 
     lblScore->setString(CCString::createWithFormat("本次游戏得分：%d", rightCount)->getCString());
 
+    this->submitScore(rightCount);
+
 }
 
 void Gamming::submitScore(int score) {
     int highScore = userDefault->getIntegerForKey("high_score", 0);
     if (rightCount <= highScore)
         return;
+
+    CCLOGERROR("submitscore!");
     userDefault->setIntegerForKey("high_score", rightCount);
 
     cocos2d::extension::CCHttpRequest* request = new cocos2d::extension::CCHttpRequest();

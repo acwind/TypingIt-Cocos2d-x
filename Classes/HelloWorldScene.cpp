@@ -110,7 +110,12 @@ bool HelloWorld::init()
     CCLabelTTF *lblHelper = CCLabelTTF::create("游戏规则：以最快速度打出屏幕上的英文格言\n每打一次键位会重置。挑战你的眼力和脑力！", "Thonburi-Bold", 22);
     lblHelper->setAnchorPoint(ccp(0.5, 0.5));
     this->addChild(lblHelper, 10, 0);
-    lblHelper->setPosition(ccp(visibleSize.width/2,  70));
+    lblHelper->setPosition(ccp(visibleSize.width/2,  80));
+
+    lblScore = CCLabelTTF::create("", "Thonburi-Bold", 18);
+    this->addChild(lblScore, 10, 0);
+    lblScore->setPosition(ccp(visibleSize.width/2,  570));
+    this->addChild(lblScore);
 
     YoumiAd::showBanner();
     this->schedule(schedule_selector(HelloWorld::timeTicker), 1);
@@ -163,6 +168,13 @@ void HelloWorld::timeTicker(float dt) {
     CCRotateBy *r = CCRotateBy::create(1, 60);
     spTitle->runAction(CCSequence::createWithTwoActions(s1, s2));
     // spBox->runAction(CCSequence::create(r, NULL));
+
+    int highScore = userDefault->getIntegerForKey("high_score", 0);
+    if (highScore > 0) {
+        char words[100];
+        sprintf(words, "我的最高得分：%d", highScore);
+        lblScore->setString(words);
+    }
 }
 
 char const* HelloWorld::getUUID()  

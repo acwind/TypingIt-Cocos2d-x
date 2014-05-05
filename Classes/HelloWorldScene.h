@@ -28,6 +28,7 @@ public:
 
     cocos2d::CCSprite *spTitle;
     cocos2d::CCSprite *spBox;
+    CCLabelTTF *lblScore;
 private:
     ZYWebView* m_webView;
 };

@@ -161,13 +161,11 @@ public class typing extends Cocos2dxActivity{
     
   //返回实例
     public static typing getInstance() {
-        Log.v("TestJacky","getInstance");
         return test;
     }
     public void openWebview() {
-        Log.v("TestJacky", "openWebView");
         this.runOnUiThread(new Runnable() {//在主线程里添加别的控件
-            public void run() {   
+            public void run() {
                 //初始化webView
                 m_webView = new WebView(test);
                 //设置webView能够执行javascript脚本
