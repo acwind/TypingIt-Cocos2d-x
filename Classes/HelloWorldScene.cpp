@@ -117,7 +117,7 @@ bool HelloWorld::init()
     lblScore->setPosition(ccp(visibleSize.width/2,  570));
     this->addChild(lblScore);
 
-    YoumiAd::showBanner();
+    // YoumiAd::showBanner();
     this->schedule(schedule_selector(HelloWorld::timeTicker), 1);
 
     if (userDefault->getStringForKey("uid") == "") {

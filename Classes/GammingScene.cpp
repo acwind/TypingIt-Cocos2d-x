@@ -260,7 +260,7 @@ void Gamming::reduceLife() {
     } else {
         spHurryup->setVisible(false);
     }
-    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(40*(MAX_LIFE-lifes)), spLife->getPositionY()));
+    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(20*(MAX_LIFE-lifes)), spLife->getPositionY()));
     spLife->runAction(CCSequence::create(s1, NULL));
     
     
@@ -454,7 +454,7 @@ void Gamming::addLife(int life) {
         lifes = MAX_LIFE;
     }
     
-    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(40*(MAX_LIFE-lifes)), spLife->getPositionY()));
+    CCMoveTo *s1 = CCMoveTo::create(1, ccp(LIFE_BAR_POSITION-(20*(MAX_LIFE-lifes)), spLife->getPositionY()));
     spLife->runAction(CCSequence::create(s1, NULL));
 }
 

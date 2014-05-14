@@ -25,32 +25,20 @@ package typing.acwind.net;
 
 import java.util.UUID;
 
-
-import net.youmi.android.AdManager;
-import net.youmi.android.banner.AdSize;
-import net.youmi.android.banner.AdView;
-
 import org.cocos2dx.lib.Cocos2dxActivity;
 import org.cocos2dx.lib.Cocos2dxGLSurfaceView;
-import com.tencent.stat.StatService;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.view.View.OnClickListener;
 
 public class typing extends Cocos2dxActivity{
@@ -68,11 +56,8 @@ public class typing extends Cocos2dxActivity{
     
     protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);	
-		initAd();
-		StatService.startStatService(this, "Aqc1101351229", com.tencent.stat.common.StatConstants.VERSION);
 		
 		 test = this;
-	        
         //初始化一个空布局
         m_webLayout = new FrameLayout(this);
         FrameLayout.LayoutParams lytp = new FrameLayout.LayoutParams(800,640);
@@ -81,61 +66,7 @@ public class typing extends Cocos2dxActivity{
 		
 	}
 
-    private void initAd() {
-        AdManager.getInstance(this).init("a59de5f6cc24c0e4", "c0d38ae44f0ae59c", false);
-      //在Activity的右上角增加一个layout容器，为后面增加banner和积分banner准备。
-        LinearLayout adLayout = new LinearLayout(this);
-        adLayout.setOrientation(LinearLayout.VERTICAL);
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT);
-        // 设置adLayout的悬浮位置
-        lp.gravity = Gravity.TOP | Gravity.RIGHT; // 这里示例为右上角
-        this.addContentView(adLayout, lp);
-
-        //普通banner的积分容器，放在adLayout中
-        bannerLayout = new LinearLayout(this);      //无积分墙的Layout，为私有成员，开发者请自行声明
-        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT);
-        adLayout.addView(bannerLayout);
-        
-        handler = new Handler() {
-
-            @Override
-            public void handleMessage(Message msg) {
-                // TODO Auto-generated method stub
-                switch( msg.what ){
-                case 1:
-                    //展示Banner
-                    if( bannerLayout.getChildCount()==0 ){
-                        AdView adView = new AdView(Cocos2dxActivity.getContext(), AdSize.FIT_SCREEN);
-                        bannerLayout.addView(adView);
-                    }
-                    break;
-                case 2:
-                    //关闭banner展示
-                    bannerLayout.removeAllViews();
-                    break;
-                }
-            }
-    };
-    }
-    
-    
-  //向handler发送要展示Banner的消息
-    public static void showBannerStatic(){
-        Message msg = handler.obtainMessage();
-        msg.what = 1;     //私有静态的整型变量，开发者请自行定义值，下面遇到的“YOUMI_”开头的都是这个意思
-        handler.sendMessage(msg);
-    }
-
-    //向handler发送要关闭Banner的消息
-    public static void hideBannerStatic(){
-        Message msg = handler.obtainMessage();
-        msg.what = 1;
-        handler.sendMessage(msg);
-    }
+   
     
     public Cocos2dxGLSurfaceView onCreateView() {
     	Cocos2dxGLSurfaceView glSurfaceView = new Cocos2dxGLSurfaceView(this);
