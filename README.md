@@ -24,5 +24,5 @@ EMail: hylwrcool@gmail.com
 
 
   [1]: https://play.google.com/store/apps/details?id=typing.acwind.net "Google"
-  [2]: https://lh5.ggpht.com/ZUo-Gl6WiZaT2EBR-hlEnoe9DNGDwcHhv6jtmztLiLX24XvNzIwFiWidvQyNIl7iL2M=h310-rw
-  [3]: https://lh6.ggpht.com/zWBo8eR6VniNwAM5Di8lnxsj9-p8FsCRgQt9maS8z71OTQwoY-tWCcr-wLkSbHg3sQ=h310-rw
+  [2]: http://icdb-download.b0.upaiyun.com/images/typing_2.png
+  [3]: http://icdb-download.b0.upaiyun.com/images/typing_1.png
